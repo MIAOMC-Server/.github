@@ -8,6 +8,7 @@
 
 <!-- issues-start -->
 
+- [ ] [Feature/MIAOMC Server official website delovepment #2](https://github.com/MIAOMC-Server/.github/issues/2)
 - [ ] [Feature/Developing a Velocity Proxy plugin to redirect players flexible #1](https://github.com/MIAOMC-Server/.github/issues/1)
 
 <!-- issues-end -->
@@ -17,6 +18,6 @@
 
 <!-- issues-done-start -->
 
-- [x] [Feature/MIAOMC Server official website delovepment #2](https://github.com/MIAOMC-Server/.github/issues/2)
+
 
 <!-- issues-done-end -->
