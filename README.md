@@ -2,10 +2,18 @@
 
 如果你想为MIAOMC做出贡献，可以在该仓库提Issue，看到后如果合理会添加到 TODO
 
-## 当前 issues 列表
+## 当前 Issues 列表
+
+### 开启的
 
 <!-- issues-start -->
 
-- [#1](https://github.com/MIAOMC-Server/Projects/issues/1) - Feature/Developing a Velocity Proxy plugin to redirect players flexible
+- [ ] [Feature/Developing a Velocity Proxy plugin to redirect players flexible #1](https://github.com/MIAOMC-Server/Projects/issues/1)
 
 <!-- issues-end -->
+
+
+### 已完成的
+
+<!-- issues-done-start -->
+<!-- issues-done-end -->
