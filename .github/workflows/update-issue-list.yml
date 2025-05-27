@@ -11,53 +11,54 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Update TODO list in README
+      - name: Update TODO list
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const path = './README.md';
+            const path = './README.md'; // 或 TODO.md
 
-            // 拉取所有开启状态的 Issue
-            const issues = await github.rest.issues.listForRepo({
+            const openIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               per_page: 100,
             });
 
-            // 生成 Markdown 格式列表
-            const issueListMarkdown = issues.data.map(issue => {
-              return `- [#${issue.number}](${issue.html_url}) - ${issue.title}`;
-            }).join('\n');
+            const closedIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              per_page: 100,
+            });
 
-            // 读取 README.md 内容
+            const openList = openIssues.data.map(issue => `- [ ] ${issue.title} [#${issue.number}](${issue.html_url})`).join('\n');
+            const closedList = closedIssues.data.map(issue => `- [x] ${issue.title} [#${issue.number}](${issue.html_url})`).join('\n');
+
             let readme = fs.readFileSync(path, 'utf8');
 
-            const startTag = '<!-- issues-start -->';
-            const endTag = '<!-- issues-end -->';
+            const replaceSection = (content, startTag, endTag, newContent) => {
+              const startIndex = content.indexOf(startTag);
+              const endIndex = content.indexOf(endTag);
+              if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) return content;
+              return (
+                content.slice(0, startIndex + startTag.length) +
+                '\n\n' +
+                newContent +
+                '\n\n' +
+                content.slice(endIndex)
+              );
+            };
 
-            const startIndex = readme.indexOf(startTag);
-            const endIndex = readme.indexOf(endTag);
+            readme = replaceSection(readme, '<!-- issues-start -->', '<!-- issues-end -->', openList);
+            readme = replaceSection(readme, '<!-- issues-done-start -->', '<!-- issues-done-end -->', closedList);
 
-            if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
-              core.setFailed('README.md 中未找到 issues 标记区域');
-              return;
-            }
+            fs.writeFileSync(path, readme, 'utf8');
 
-            const before = readme.slice(0, startIndex + startTag.length);
-            const after = readme.slice(endIndex);
-
-            const newReadme = `${before}\n\n${issueListMarkdown}\n\n${after}`;
-
-            // 写入 README.md
-            fs.writeFileSync(path, newReadme, 'utf8');
-
-            // git 提交并推送
             const { execSync } = require('child_process');
             execSync('git config user.name "github-actions[bot]"');
             execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
-            execSync('git add README.md');
-            execSync('git commit -m "自动更新 TODO 列表" || echo "无改动"');
+            execSync('git add ' + path);
+            execSync('git commit -m "自动更新 TODO 列表（开启和已完成）" || echo "无改动"');
             execSync('git push');
