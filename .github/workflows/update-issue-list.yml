@@ -33,8 +33,8 @@ jobs:
               per_page: 100,
             });
 
-            const openList = openIssues.data.map(issue => `- [ ] ${issue.title} [#${issue.number}](${issue.html_url})`).join('\n');
-            const closedList = closedIssues.data.map(issue => `- [x] ${issue.title} [#${issue.number}](${issue.html_url})`).join('\n');
+            const openList = openIssues.data.map(issue => `- [ ] [${issue.title} #${issue.number}](${issue.html_url})`).join('\n');
+            const closedList = closedIssues.data.map(issue => `- [x] [${issue.title} #${issue.number}](${issue.html_url})`).join('\n');
 
             let readme = fs.readFileSync(path, 'utf8');
 
