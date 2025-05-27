@@ -17,7 +17,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const path = './README.md'; // 或 TODO.md
+            const paths = ['./README.md', './profile/README.md'];
 
             const openIssues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -36,8 +36,6 @@ jobs:
             const openList = openIssues.data.map(issue => `- [ ] [${issue.title} #${issue.number}](${issue.html_url})`).join('\n');
             const closedList = closedIssues.data.map(issue => `- [x] [${issue.title} #${issue.number}](${issue.html_url})`).join('\n');
 
-            let readme = fs.readFileSync(path, 'utf8');
-
             const replaceSection = (content, startTag, endTag, newContent) => {
               const startIndex = content.indexOf(startTag);
               const endIndex = content.indexOf(endTag);
@@ -51,14 +49,23 @@ jobs:
               );
             };
 
-            readme = replaceSection(readme, '<!-- issues-start -->', '<!-- issues-end -->', openList);
-            readme = replaceSection(readme, '<!-- issues-done-start -->', '<!-- issues-done-end -->', closedList);
-
-            fs.writeFileSync(path, readme, 'utf8');
-
             const { execSync } = require('child_process');
             execSync('git config user.name "github-actions[bot]"');
             execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
-            execSync('git add ' + path);
-            execSync('git commit -m "自动更新 TODO 列表（开启和已完成）" || echo "无改动"');
+
+            for (const path of paths) {
+              if (!fs.existsSync(path)) {
+                console.log(`文件 ${path} 不存在，跳过。`);
+                continue;
+              }
+
+              let content = fs.readFileSync(path, 'utf8');
+              content = replaceSection(content, '<!-- issues-start -->', '<!-- issues-end -->', openList);
+              content = replaceSection(content, '<!-- issues-done-start -->', '<!-- issues-done-end -->', closedList);
+
+              fs.writeFileSync(path, content, 'utf8');
+              execSync(`git add "${path}"`);
+            }
+
+            execSync('git commit -m "自动更新 TODO 列表（README.md + profile）" || echo "无改动"');
             execSync('git push');
