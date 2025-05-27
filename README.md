@@ -5,4 +5,7 @@
 ## 当前 issues 列表
 
 <!-- issues-start -->
+
+- [#1](https://github.com/MIAOMC-Server/Projects/issues/1) - Feature/Developing a Velocity Proxy plugin to redirect players flexible
+
 <!-- issues-end -->
